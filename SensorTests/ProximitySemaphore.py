@@ -1,13 +1,13 @@
+import utime
 import neopixel
 import machine
-import utime
 
 strip_pin = machine.Pin(16, machine.Pin.OUT)
-FULLBRIGHT = 256
+FULLBRIGHT = 255
 def draw(level : int):
     n = neopixel.NeoPixel(strip_pin, 8)
     
-    brightness = int(FULLBRIGHT / 4)
+    brightness = int(FULLBRIGHT / 1)
     if(level > 0 ):
         n[0] = (0,0,brightness)
 
@@ -35,10 +35,24 @@ def draw(level : int):
     n.write()
 
 
-for i in range(9):
-    draw(i)
-    utime.sleep_ms(1000)
+trigger = machine.Pin(15,machine.Pin.OUT)
+echo = machine.Pin(14,machine.Pin.IN)
+distancia = 0
 
-n = neopixel.NeoPixel(strip_pin, 8)
-n.fill((0,0,0))
-n.write()
+def Medicion_distancia(tiempo):
+    trigger.high()
+    utime.sleep(tiempo)
+    trigger.low()
+       
+
+
+while True:
+    Medicion_distancia(0.0001)
+    
+    duracion = machine.time_pulse_us(echo, machine.Pin.high)
+       
+    distancia = (duracion*0.0343)/2
+    print('Distancia',distancia,'cm')
+
+    draw(8 - int(distancia/(60/8)))
+    utime.sleep_ms(100)
